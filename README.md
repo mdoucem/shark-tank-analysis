@@ -14,4 +14,8 @@ See the tank_analysis.R file for the analysis and visualization code.
 ## Results
 See article for results:
 Part I results:
+<<<<<<< HEAD
 Part II results: 
+=======
+Part II results: 
+>>>>>>> 8922b55f4d11d0e4208f1c1cb513fd4cbb951104
