@@ -8,9 +8,11 @@ The gender and industry data is from the following dataset bit.ly/STankData, kep
 
 Race and other subjective data are collected manually.
 
-## Source code
-See the tank_analysis.R file for the analysis and visualization code.
+## Analysis code
+See the Shark_tank_analysis.R file for the analysis and visualization code.
 
 ## Results
-See article for results:
-Part I results:
+Find the article explaining the results:
+Part I results and description: http://myriammunezero.com/more-women-who-pitch-on-shark-tank-get-the-deal-shark-tank-analysis-part-i/
+
+Part II results: (Coming Soon ...)
