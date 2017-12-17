@@ -1,10 +1,21 @@
+###
+# This script takes as input a cvs file containing observations from each Shark Tank episode.
+# With the data, pie charts, stacked bar charts and radar charts are plotted to visualize the gender distributions in the show.
+# Source of data is from here - bit.ly/STankData
+
+# Author: Myriam Munezero
+###
+
 # Needed libraries
 library(ggplot2)
 library(plyr) # allows the use of the count function
-library(scales) # allows for the plotting of the percentage on the y-axis
-library(fmsb) # allows for the radar chart plotting
+library(scales) # for the plot grids
 
-# Load the data
+#Radar charts require the following packages
+library(varhandle)
+library(fmsb)
+
+# Load the data into a DataFrame
 tank_vec<-function(){
   shark_data<-read.csv("shark-tank-part1.csv")
   shark_data<-sapply(shark_data,gsub,pattern=";",replacement=",")
@@ -25,17 +36,20 @@ tank_vec<-function(){
 
 tank_data<-tank_vec()
 
-# Subsetting the data
+# Subsetting the data - only extract the necessary columns for the analysis
 subset_data<-data.frame(tank_data$Season, tank_data$Gender, tank_data$Deal, tank_data$Industry)
 colnames(subset_data)<-c("Season", "Gender", "Deal", "Industry")
 subset_data$Season<-paste("s", subset_data$Season, sep = "")
 
 
 
-##================================================== Plots begin ============================================================##
+##================================ Plots begin ================================##
+
+##------------------------- Pie Graph-----------------------##
+
+#===Pie Chart - plots the gender distribution among the eight seasons===##
 
 
-##------------------------- Pie Chart - plots the gender distribution among the eight seasons-----------------------##
 pie_graph<-function(vec){
   vec<-table(vec$Gender)
   vec<-as.data.frame(vec)
@@ -63,17 +77,15 @@ pie_graph<-function(vec){
     scale_fill_brewer(palette = "Dark2")
     
     
-  # prints the pie chart
   p1
-  
-  #val_names<-sprintf("%s (%s)", c("Female", "Male", "Mixed Teams"),
 }
 
 pie_graph(subset_data) 
 
-##--------------------------------- Stacked Bar Charts -----------------------##
+##------------------------- Stacked Bar Charts -----------------------##
 
-##----------------Stacked Bar Chart - plots the percentage gender distribution in each of the eight seasons----------------## 
+#===1. Stacked Bar Chart - plots the percentage gender distribution in each of the eight seasons===## 
+
 stacked_bar<-function(vec){
   Season<-c(rep("S1", 3), rep("S2", 3), rep("S3", 3), rep("S4", 3), rep("S5", 3),
             rep("S6", 3), rep("S7", 3), rep("S8", 3))
@@ -110,7 +122,7 @@ stacked_bar<-function(vec){
     ggtitle("Gender distribution season after season") +
     theme(plot.title = element_text(hjust = 0.5))
   
-  # Stacked Percent chart_with_%Labels
+  # Stacked Percent chart displaying the percentage labels
   bar_stacked_perc_showing<-function(df){
     df$Category = factor(df$Category, levels = c("Mixed Teams", "Male", "Female"))
     df<-arrange(df, Season, desc(Category))
@@ -127,14 +139,14 @@ stacked_bar<-function(vec){
     
   bar_grouped
   
-  ## Uncomment below to see the total presenters in each season 
+  ## Uncomment to see the total presenters in each season 
   # total_seas<-tapply(data$Total, data$Season, sum)
   # total_seas
 }
 
 stacked_bar(subset_data)
 
-##----------------Stacked Bar Chart - plots the percentage gender / deal distribution in each of the eight seasons----------------##
+##===2. Stacked Bar Chart - plots the percentage gender/deal distribution in each of the eight seasons===##
 
 stacked_bar_deal<-function(vec){
   Season<-c(rep("S1", 3), rep("S2", 3), rep("S3", 3), rep("S4", 3), rep("S5", 3),
@@ -175,8 +187,8 @@ stacked_bar_deal<-function(vec){
     scale_y_continuous(labels = percent_format()) + 
     ggtitle("Gender distribution season after season of those that got deals") +
     theme(plot.title = element_text(hjust = 0.5))
-    
-  # Stacked Bar chart with Percentage labes showing
+  
+  # Stacked Percent chart displaying the percentage labels  
   bar_stacked_perc_showing<-function(df){
     df$Category = factor(df$Category, levels = c("Mixed Teams", "Male", "Female"))
     df<-arrange(df, Season, desc(Category))
@@ -201,14 +213,8 @@ stacked_bar_deal(subset_data)
 
 ##--------------------------- Radar Charts ----------------------------##
 
-#Radar charts require the following package
-install.packages("fmsb")
-install.packages("varhandle")
-library(varhandle)
-library(fmsb)
 
-
-##----------------Radar Chart - Distribution of the Industry across all 8 seasons----------------##
+##===1. Radar Chart - Distribution of the Industry across all 8 seasons===##
 radar_industry<-function(vec){
   industry<-unique(vec$Industry)
   ind_vec<-tapply(vec$Industry, vec$Industry, count)
@@ -249,7 +255,7 @@ radar_industry(subset_data)
 
 
 
-##----------------Radar Chart - Distribution of the Gender/Industry across all 8 seasons----------------##
+##===2. Radar Chart - Distribution of the Gender/Industry across all 8 seasons===##
 data_industry_gender<-function(vec){
   industry<-unique(vec$Industry)
   ind_gend_vec<-tapply(vec$Gender, vec$Industry, count)
@@ -331,10 +337,11 @@ radar_industry_gender(radar_data_single)
 
 
 
-##----------------Radar Chart - Distribution of the Gender/Industry/Deal across all 8 season----------------##
+##===3 Radar Chart - Distribution of the Gender/Industry/Deal across all 8 seasons===##
 
 data_industry_gender_deal<-function(vec){
-
+  #industry<-unique(vec$Industry)
+  
   #get those who got the deal
   deal_yes<-subset(vec, Deal=='Yes')
   ind_gend_deal_vec<-tapply(deal_yes$Gender, deal_yes$Industry, count)
@@ -389,6 +396,7 @@ data_industry_gender_deal<-function(vec){
 radar_data_multiple<-data_industry_gender_deal(subset_data) 
 
 #plot the radar chart
+
 radar_industry_gender_deal<-function(radar_df){
   radar_df<-unfactor(radar_df)
   rownames(radar_df)<-c("Female", "Male", "Mixed Team")
@@ -413,5 +421,5 @@ radar_industry_gender_deal<-function(radar_df){
          text.col = "grey", cex=1.2, pt.cex=3)
   data
 }
-radar_industry_gender_deal(radar_data_multiple)
 
+radar_industry_gender_deal(radar_data_multiple)
